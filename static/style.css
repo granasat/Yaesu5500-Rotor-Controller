@@ -1,0 +1,44 @@
+body {
+    background-color: #210B61;
+	font-family: Tahoma, Geneva, sans-serif;
+}
+
+#box{
+	margin: auto;
+	border-radius: 20px;
+    background: #F2F2F2;
+    padding: 20px; 
+    width: 500px;
+    height: 350px; 
+}
+
+h1{
+	color: #F2F2F2;
+}
+
+#tabla{
+	width: 95%;
+	padding: 10px;
+	margin: 5px;
+}
+
+table{
+	width: 520px;
+	padding: 10px;
+	margin: auto;
+}
+
+td,h3{
+	vertical-align: middle;
+	text-align: center;
+}
+
+button{
+	width: 10%;
+	padding: 2px;
+	margin: 5px;
+}
+
+#azmv,#elmv{
+	width: 50px;
+}

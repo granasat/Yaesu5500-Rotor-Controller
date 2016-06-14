@@ -1,0 +1,113 @@
+<head>
+    <title>GranaSAT Rotors</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.js"></script>
+    <script src="static/heading.js"></script>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+	<table>
+	<tr><td>
+    <img src="http://granasat.ugr.es/images/logotipos/op1.png" id="logo"></td><td>
+	<h1>GranaSAT Rotors Control</h1></td></tr>
+	</table>
+    <!-- <p id="azimutData"></p>
+    <p id="elevationData"></p> -->
+	
+	<div id="box">
+		<table id="tabla">
+			<tr><td>
+				<div class="main-rotator" id="rot_az">
+					<h3 id="main-rotator-heading">Azimuth</h3>
+					<div id="heading-wrap">
+						<canvas id="headingAzimut" width="200" height="200"></canvas>
+					</div>
+				</div>
+			</td><td>
+				<div class="main-rotator" id="rot_el">
+					<h3 id="main-rotator-heading">Elevation</h3>
+					<div id="heading-wrap">
+						<canvas id="headingElevation" width="200" height="200"></canvas>
+					</div>
+				</div>
+			</tr>
+			<tr><td colspan="2">
+				<div id="formulario">
+					<form>
+						Azimuth New:
+						<input type="number" id="azmv" name="A" min="0" max="360">
+						Elevation New:
+						<input type="number" id="elmv" name="E" min="0" max="180">
+						</br>
+						<button type="button">Go!</button>
+					</form>
+				</div>
+			</td></tr>
+		</table>
+	</div>
+
+</body>
+
+<script>
+    $(document).ready(function(){
+
+        heading_options_large = {
+            scale: 2,
+            font: "normal 14pt Arial",
+            color: "#000",
+            needleColor: "blue",
+            needleColorRing: "yellow",
+            lineWidth: 3
+        }
+
+        indicatorOptions = {
+            scale: 2,
+            font: "normal 14pt Arial",
+            color: "yellow",
+            lineWidth: 3
+        }
+
+        var canvasAzimut = document.getElementById('headingAzimut');
+        if (canvasAzimut.getContext('2d')) {
+            var ctxAzimut = canvasAzimut.getContext('2d');
+        }
+
+        var canvasElevation = document.getElementById('headingElevation');
+        if (canvasElevation.getContext('2d')) {
+            var ctxElevation = canvasElevation.getContext('2d');
+        }
+	
+		//Schedule a job every 100ms where the jQuery GET command is executed
+        
+		setInterval(function () {
+            $.get( "getData/azimut", function( data ) {
+				data=data.replace("?>", "");
+				azimut=data.match(/[0-9]{1,4}/);
+                //$( "#azimutData" ).html("Azimut: " + azimut + "º");
+                ctxAzimut.clearRect(0, 0, canvasAzimut.width, canvasAzimut.height)
+                draw_heading_canvasAz(azimut,ctxAzimut,heading_options_large,true);
+				document.getElementById("azmv").defaultValue = azimut;
+            });
+				
+            $.get( "getData/elevation", function( data ) {
+				data=data.replace("?>", "");
+				elevation=data.match(/[0-9]{1,4}/);
+                //$( "#elevationData" ).html("Elevation: " + data + "º");
+                ctxElevation.clearRect(0, 0, canvasElevation.width, canvasElevation.height)
+                draw_heading_canvasEl(elevation,ctxElevation,heading_options_large,true);
+				document.getElementById("elmv").defaultValue = elevation;
+            });
+			
+		},1000);
+    });
+	
+	$(function() {
+      $('button').bind('click', function() {
+        $.getJSON('/sendData', {
+          a: $('input[name="A"]').val(),
+          e: $('input[name="E"]').val()
+        });
+      });
+    });
+</script>
