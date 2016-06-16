@@ -32,17 +32,19 @@
 					</div>
 				</div>
 			</tr>
+			<tr><td>
+				Azimuth New:
+				<input type="number" id="azmv" name="A" min="0" max="450"></br>
+				0<input type="range" id="azslider" name="AS" min="0" max="450" onchange="printValue('azmv','azslider')">450
+			</td><td>
+				Elevation New: 
+				<input type="number" id="elmv" name="E" min="0" max="180"></br>
+				0<input type="range" id="elslider" name="ES" min="0" max="180" onchange="printValue('elmv','elslider')">180
+			</td>
+			</tr>
 			<tr><td colspan="2">
-				<div id="formulario">
-					<form>
-						Azimuth New:
-						<input type="number" id="azmv" name="A" min="0" max="360">
-						Elevation New:
-						<input type="number" id="elmv" name="E" min="0" max="180">
-						</br>
-						<button type="button">Go!</button>
-					</form>
-				</div>
+				<button type="button" id="move">Go!</button>
+				<button type="button" id="stop">STOP</button>
 			</td></tr>
 		</table>
 	</div>
@@ -103,11 +105,25 @@
     });
 	
 	$(function() {
-      $('button').bind('click', function() {
+      $('#move').bind('click', function() {
         $.getJSON('/sendData', {
           a: $('input[name="A"]').val(),
           e: $('input[name="E"]').val()
         });
       });
+	  $('#stop').bind('click', function() {
+        $.getJSON('/sendStop');
+      });
     });
+	
+	function printValue(dest, orig) {
+        var x = document.getElementById(dest);
+        var y = document.getElementById(orig);
+        x.value = y.value;
+    }
+
+    window.onload = function() { 
+		printValue('elslider', 'elmv'); 
+		printValue('azslider', 'azmv'); 
+	}
 </script>
