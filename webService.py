@@ -45,6 +45,16 @@ def sendData():
 		return "ok"
     else:
         return "Error"
+		
+@app.route("/sendStop")
+def sendStop():
+    
+    if ser.isOpen():
+		ser.write('S')
+		print("STOP Signal sent")
+		return "ok"
+    else:
+        return "Error"
 	
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=3000,debug=True)
