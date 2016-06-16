@@ -34,11 +34,28 @@ td,h3{
 }
 
 button{
-	width: 10%;
-	padding: 2px;
+	width: 15%;
+	padding: 5px 7px;
 	margin: 5px;
+	text-align: center;
+    text-decoration: none;
+    display: inline-block;
+	border-radius: 4px;
+	color: white;
+}
+
+#move{
+	background-color: #4CAF50;
+}
+
+#stop{
+	background-color: #FF0000;
 }
 
 #azmv,#elmv{
 	width: 50px;
+}
+
+#pvalues{
+	vertical-align: middle;
 }
