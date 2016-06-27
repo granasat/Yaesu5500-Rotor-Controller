@@ -13,6 +13,8 @@
     <img src="http://granasat.ugr.es/images/logotipos/op1.png" id="logo"></td><td>
 	<h1>GranaSAT Rotors Control</h1></td></tr>
 	</table>
+    <!-- <p id="azimutData"></p>
+    <p id="elevationData"></p> -->
 	
 	<div id="box">
 		<table id="tabla">
@@ -31,9 +33,23 @@
 					</div>
 				</div>
 			</td></tr>
+			<tr><td id="pvalues">
+				Azimuth New:
+				<input type="number" id="azmv" name="A" min="0" max="450"></br>
+				0<input type="range" id="azslider" name="AS" min="0" max="450" oninput="printValue('azmv','azslider')">450
+			</td><td id="pvalues">
+				Elevation New: 
+				<input type="number" id="elmv" name="E" min="0" max="180"></br>
+				0<input type="range" id="elslider" name="ES" min="0" max="180" oninput="printValue('elmv','elslider')">180
+			</td>
+			</tr>
+			<tr><td colspan="2">
+				<button type="button" id="move">MOVE</button>
+				<button type="button" id="stop">STOP</button>
+			</td></tr>
 		</table>
 	</div>
-	<p id="comment">GranaSAT 2016 - <a href="/login">Login</a></p>
+	<p id="comment">GranaSAT 2016 - <a href="/logout">Logout</a></p>
 	<p id="bottom_txt">Acknowledgments: To the <a href="http://www.esa.int/ESA">ESA</a> and the 2016 SOCIS program.</p>
 </body>
 
@@ -69,22 +85,48 @@
 		//Schedule a job every 100ms where the jQuery GET command is executed
         
 		setInterval(function () {
-            $.get( "getData/azimut", function( data ) {
+            $.get( "getDataLgd/azimut", function( data ) {
 				data=data.replace("?>", "");
 				azimut=data.match(/[0-9]{1,4}/);
+                //$( "#azimutData" ).html("Azimut: " + azimut + "º");
                 ctxAzimut.clearRect(0, 0, canvasAzimut.width, canvasAzimut.height)
                 draw_heading_canvasAz(azimut,ctxAzimut,heading_options_large,true);
 				document.getElementById("azmv").defaultValue = azimut;
             });
 				
-            $.get( "getData/elevation", function( data ) {
+            $.get( "getDataLgd/elevation", function( data ) {
 				data=data.replace("?>", "");
 				elevation=data.match(/[0-9]{1,4}/);
+                //$( "#elevationData" ).html("Elevation: " + data + "º");
                 ctxElevation.clearRect(0, 0, canvasElevation.width, canvasElevation.height)
                 draw_heading_canvasEl(elevation,ctxElevation,heading_options_large,true);
 				document.getElementById("elmv").defaultValue = elevation;
             });
 			
 		},1000);
+		
+		setInterval(function () {
+            printValue('elslider', 'elmv'); 
+			printValue('azslider', 'azmv'); 
+		},1000);
     });
+	
+	$(function() {
+      $('#move').bind('click', function() {
+        $.getJSON('/sendData', {
+          a: $('input[name="A"]').val(),
+          e: $('input[name="E"]').val()
+        });
+      });
+	  $('#stop').bind('click', function() {
+        $.getJSON('/sendStop');
+      });
+    });
+	
+	function printValue(dest, orig) {
+        var x = document.getElementById(dest);
+        var y = document.getElementById(orig);
+        x.value = y.value;
+    }
+
 </script>

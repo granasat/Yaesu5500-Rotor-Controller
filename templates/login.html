@@ -1,0 +1,45 @@
+<head>
+    <title>GranaSAT Rotors</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.js"></script>
+    <script src="static/heading.js"></script>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+    <script>
+      var messages = {{ messages | safe }};
+      for (var i=0; i<messages.length; i++) {
+        alert(messages[i]);
+      }
+    </script>
+	{% endif %}
+	{% endwith %}
+
+</head>
+
+<body>
+	<table>
+	<tr><td>
+    <img src="http://granasat.ugr.es/images/logotipos/op1.png" id="logo"></td><td>
+	<h1>GranaSAT Rotors Control</h1></td></tr>
+	</table>
+	
+	<div id="box">
+		<form form action="/doLogin" method="POST">
+			<table id="tabla">
+				<tr><td>
+					<input type="username" name="username" placeholder="Username">
+				</td></tr>
+				<tr><td>
+					<input type="password" name="password" placeholder="Password">
+				</td></tr>
+				<tr><td>
+					<input type="submit" value="Log In">
+				</td></tr>
+			</table>
+		</form>
+	</div>
+	<p id="comment">GranaSAT 2016</p>
+	<p id="bottom_txt">Acknowledgments: To the <a href="http://www.esa.int/ESA">ESA</a> and the 2016 SOCIS program.</p>
+</body>
