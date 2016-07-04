@@ -4,6 +4,7 @@
 import serial
 import os
 import logging
+import config
 from datetime import timedelta
 from flask import Flask, render_template, request, url_for, redirect, session, flash
 
@@ -14,8 +15,8 @@ app.secret_key = os.urandom(24)
 app.permanent_session_lifetime = timedelta(seconds=120)
 
 ser = serial.Serial(
-    port='/dev/ttyUSB0',
-    baudrate=9600,
+    port=config.serial_port,
+    baudrate=config.serial_baudrate,
 	timeout=0,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -23,11 +24,11 @@ ser = serial.Serial(
 )
 
 logger = logging.getLogger('rotor_control')
-hdlr = logging.FileHandler('/var/tmp/rotor_control.log')
+hdlr = logging.FileHandler(config.log_file)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr) 
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 
 last_az = -1
 last_el = -1
@@ -60,15 +61,15 @@ def do_admin_login():
     global user_logged
     session.permanent = True
     if user_logged == 0:
-        if request.form['username'] == 'admin' and request.form['password'] == 'admin':
+        if request.form['username'] == config.username and request.form['password'] == config.password:
             session['logged_in'] = True
             user_logged = 1
-            logger.info('User admin logged.')
+            logger.info('User admin logged from '+request.remote_addr)
         else:
             flash('Wrong identification!')
-            logger.error('Wrong logging attempt.')
+            logger.error('Wrong logging attempt from '+request.remote_addr)
     else:
-	    flash('Web Control is currently in use.')
+        flash('Web Control is currently in use.')
     return login()
 	
 @app.route("/getData/<data>",methods=['GET'])
@@ -126,10 +127,11 @@ def sendData():
         _az = request.args.get('a')
         _el = request.args.get('e')
         if ser.isOpen():
-		    ser.write('W'+_az+' '+_el)
-		    #ser.write('W'+_az)
-		    print("Go to: az: "+_az+", el: "+_el)
-		    return "OK"
+            ser.write('W'+_az+' '+_el)
+            #ser.write('W'+_az)
+            print("Go to: az: "+_az+", el: "+_el)
+            logger.info('User moved to Az: '+_az+', El: '+_el)
+            return "OK"
         else:
             return "Error Reading COM Port"
     else:
@@ -140,9 +142,10 @@ def sendData():
 def sendStop():
     if session.get('logged_in'):
         if ser.isOpen():
-		    ser.write('S')
-		    print("STOP Signal sent")
-		    return "Ok"
+            ser.write('S')
+            print("STOP Signal sent")
+            logger.info('User sent STOP signal.')
+            return "Ok"
         else:
             return "Error"
     else:
