@@ -51,6 +51,10 @@ button{
 	font-size: 0.75em;
 }
 
+a{
+	color: #1E90FF;
+}
+
 #bottom_txt{
 	color: #F2F2F2;
 	position: fixed;
