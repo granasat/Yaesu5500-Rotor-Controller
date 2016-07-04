@@ -7,4 +7,4 @@ serial_baudrate = 9600
 log_file = '/var/tmp/rotor_control.log'
 
 username = 'admin'
-password = 'prueba'
+password = 'admin'
