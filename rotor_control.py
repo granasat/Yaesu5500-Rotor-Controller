@@ -127,7 +127,7 @@ def sendData():
         _az = request.args.get('a')
         _el = request.args.get('e')
         if ser.isOpen():
-            ser.write('W'+_az+' '+_el)
+            ser.write(('W'+_az+' '+_el).encode())
             #ser.write('W'+_az)
             print("Go to: az: "+_az+", el: "+_el)
             logger.info('User moved to Az: '+_az+', El: '+_el)
@@ -142,7 +142,7 @@ def sendData():
 def sendStop():
     if session.get('logged_in'):
         if ser.isOpen():
-            ser.write('S')
+            ser.write(('S').encode())
             print("STOP Signal sent")
             logger.info('User sent STOP signal.')
             return "Ok"
