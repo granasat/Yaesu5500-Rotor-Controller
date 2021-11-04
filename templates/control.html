@@ -134,5 +134,9 @@
 <script>
 	setInterval(() => {
 		fetch('/keepAlive')
-	}, 5000) // We let the server know we are here each 5000 seconds.
+		.then((resp) => {
+			if (!resp.ok)
+				location.href = '/login'
+		})
+	}, 2000) // We let the server know we are here each 5000 seconds.
 </script>

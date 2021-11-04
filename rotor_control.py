@@ -13,7 +13,6 @@ app = Flask(__name__)
 
 app.secret_key = os.urandom(24)
 
-app.permanent_session_lifetime = timedelta(seconds=120)
 ser = serial.Serial(
     port=config.serial_port,
     baudrate=config.serial_baudrate,
@@ -35,9 +34,19 @@ last_el = -1
 user_logged = 0
 last_seen_user_logged = 0
 
+
+def isactive_lastseen(local_session, cur_time):
+    if not local_session.get('last_seen'):
+        return False
+
+    active = cur_time - local_session['last_seen'] < config.max_unusedtime \
+        and local_session['last_seen'] < cur_time
+    if not active and local_session.get('logged_in'):
+        local_session['logged_in'] = False
+    return active
+
 @app.route("/")
 def index():
-    print(f"logged in {not session.get('logged_in')}")
     if not session.get('logged_in'):
         return render_template('index.html')
     else:
@@ -62,11 +71,12 @@ def logout():
 def do_admin_login():
     global user_logged
     global last_seen_user_logged
-    session.permanent = True
-    lastseen_elapsed = time.time() - last_seen_user_logged
+    cur_time = time.time()
+    lastseen_elapsed = cur_time - last_seen_user_logged
     if user_logged == 0 or lastseen_elapsed > config.max_unusedtime:
         if request.form['username'] == config.username and request.form['password'] == config.password:
-            last_seen_user_logged = time.time()
+            last_seen_user_logged = cur_time
+            session['last_seen'] = cur_time
             session['logged_in'] = True
             user_logged = 1
             logger.info('User admin logged from '+request.remote_addr)
@@ -75,7 +85,7 @@ def do_admin_login():
             logger.error('Wrong logging attempt from '+request.remote_addr)
     else:
         flash(('Web Control is currently in use. '
-               f'Last seen logged user {time.time() - last_seen_user_logged} '
+               f'Last seen logged user {cur_time - last_seen_user_logged:.2f} '
                'seconds ago.'))
     return login()
 
@@ -129,7 +139,8 @@ def getDataLgd(data):
 
 @app.route("/sendData")
 def sendData():
-    if session.get('logged_in'):
+    cur_time = time.time()
+    if session.get('logged_in') and isactive_lastseen(session, cur_time):
         _az = request.args.get('a')
         _el = request.args.get('e')
         if ser.isOpen():
@@ -146,7 +157,8 @@ def sendData():
 
 @app.route("/sendStop")
 def sendStop():
-    if session.get('logged_in'):
+    cur_time = time.time()
+    if session.get('logged_in') and isactive_lastseen(session, cur_time):
         if ser.isOpen():
             ser.write(('S').encode())
             print("STOP Signal sent")
@@ -158,11 +170,12 @@ def sendStop():
         flash('Session expired.')
         return login()
 
-@app.route("/keepAlive",methods=['GET'])
+@app.route("/keepAlive", methods=['GET'])
 def keepAlive():
     global last_seen_user_logged
-    if session.get('logged_in'):
+    if session.get('logged_in') and isactive_lastseen(session, time.time()):
         last_seen_user_logged = time.time()
+        session['last_seen'] = last_seen_user_logged
         return f"Last seen at {last_seen_user_logged}", 200
 
     return "Must be logged in", 400
