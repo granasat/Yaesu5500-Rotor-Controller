@@ -130,3 +130,9 @@
     }
 
 </script>
+
+<script>
+	setInterval(() => {
+		fetch('/keepAlive')
+	}, 5000) // We let the server know we are here each 5000 seconds.
+</script>
