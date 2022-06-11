@@ -8,3 +8,5 @@ log_file = '/var/tmp/rotor_control.log'
 
 username = 'admin'
 password = 'admin'
+
+max_unusedtime = 10 # seconds
